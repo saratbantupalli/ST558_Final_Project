@@ -16,10 +16,10 @@ fluidPage(
                         htmlOutput("note")),
                navbarMenu("Data Exploration",
                           tabPanel("Numerical Summary",
-                                   radioButtons("summary_type","Summary type",
+                                   radioButtons("summary_type",strong("Summary type"),
                                                 choices = c("Mean", "Median",
                                                             "Maximum", "Minimum")),
-                                   selectInput("type_of_security_numerical", "Security", selected = "All",
+                                   selectInput("type_of_security_numerical", strong("Security"), selected = "All",
                                                choices = c("All",
                                                  "Treasury Bills",
                                                  "Treasury Notes",
@@ -30,9 +30,10 @@ fluidPage(
                                                  "Total Marketable")),
                                    DT::dataTableOutput("numerical_summary")),
                           tabPanel("Graphical Summary",
-                                   selectInput("type_of_plot", "Plot Type",
-                                               choices = c("Trend Plot")),
-                                   selectInput("type_of_security_graphical", "Security", selected = "All",
+                                   selectInput("type_of_plot", strong("Plot Type"),
+                                               choices = c("Securities Trend Plot", "Securities Histogram",
+                                                           "Total Debt Plot")),
+                                   selectInput("type_of_security_graphical", strong("Security"), selected = "All",
                                                choices = c("All",
                                                            "Treasury Bills",
                                                            "Treasury Notes",
@@ -40,7 +41,15 @@ fluidPage(
                                                            "Treasury Inflation-Protected Securities (TIPS)",
                                                            "Treasury Floating Rate Notes (FRN)",
                                                            "Federal Financing Bank")),
-                                   plotOutput("trend_plot")))
+                                   conditionalPanel(condition = "input.type_of_plot == 'Securities Histogram'",
+                                                    checkboxInput(inputId = "density",
+                                                                  label = strong("Show density estimate"),
+                                                                  value = FALSE)),
+                                   plotOutput("graphical_summary"),
+                                   conditionalPanel(condition = "input.density == true",
+                                                    sliderInput(inputId = "bw_adjust",
+                                                                label = "Bandwidth adjustment:",
+                                                                min = 0.01, max = 0.15, value =0.1, step = 0.05))))
     )
 )
 

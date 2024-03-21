@@ -1,7 +1,3 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-
 
 library(shiny)
 library(tidyverse)
@@ -10,9 +6,15 @@ library(jsonlite)
 
 #library(bslib)
 
-# Define server logic required to connect to US Treasury API, get data on average interest rates,
+# # # Define server logic required to connect to US Treasury API, get data on 
+# average interest rates and national public debt
 function(input, output, session) {
-  # Create a function to connect to the Treasury API and get interest rate data
+  # Create 2 functions to connect to Treasury API. First API connects and gets 
+  # interest rates on US Treasury Securities while seconds API connects and gets 
+  # data on national public debt
+  
+  # # # # Function 1: Create a function called avg_interest to connect to the
+  # Treasury API and get average interest rate data on US Treasuries
   avg_interest <- function(security_class = "All") {
     # Here we are joining different parts of the API URL we are interested in.
     # The base URL for queries in the API is constant.
@@ -33,7 +35,7 @@ function(input, output, session) {
     parsed_data <- parsed_data %>% filter(avg_interest_rate_amt != "null") %>% 
       filter(security_type_desc == "Marketable") %>%
       select(date = record_date, security = security_desc, 
-             avg_interest = avg_interest_rate_amt, year = record_calendar_year)
+             value = avg_interest_rate_amt, year = record_calendar_year)
     # Filtering data based on the type of security chosen by the user
     # If the user specified security_class is not equal to "all", the function returns data with the specified security_type
     if(security_class != "All") {
@@ -43,20 +45,90 @@ function(input, output, session) {
     else {
       
     }
-    
     # Converting the output to a tibble type
     parsed_data <- tibble(parsed_data)
     # Converting the output type for different parameters
     # Converting the date from character type to date using the lubridate package
     parsed_data$date <- ymd(parsed_data$date)
     # Converting the avg_interest parameter into a numeric
-    parsed_data$avg_interest <- as.numeric(parsed_data$avg_interest)
+    parsed_data$value <- as.numeric(parsed_data$value)
     parsed_data$year <- as.numeric(parsed_data$year)
     return(parsed_data)
   }
   
-  # Interest data, loads all data
+  # # # # Function 2: Create a function called national_debt to connect to the
+  # Treasury API and get national public data for the country
+  national_debt <- function(security_type = "all", year_from = 2001, year_to = 2023, debt_type = "all"){
+    # The base URL for queries in the API is constant.
+    base_url <- "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/"
+    # The Endpoint of the monthly public debt
+    debt_api_endpoint <- "v1/debt/mspd/mspd_table_1"	
+    # Optional Pagination field
+    pagination_data <- "?page[number]=1&page[size]=10000"
+    
+    # Here the complete URL for monthly public debt API was constructed by pasting the base_url and api_endpoint url
+    debt_api_url <- paste0(base_url,debt_api_endpoint,pagination_data)
+    
+    #The GET function from httr package was used to connect to both the APIs and get the data 
+    # Public debt data
+    debt_raw_data <- GET(debt_api_url)
+    
+    # The raw debt data in JSON format is converted to a data frame in these 2 steps
+    debt_parsed_data <- fromJSON(rawToChar(debt_raw_data$content))
+    debt_parsed_data <- data.frame((debt_parsed_data$data))
+    
+    # # Here the Public Debt data was manipulated to select the parameters we are interested in analyzing
+    # The data is then filtered to save the observations for Total Marketable, Total Nonmarketable, and Total Public Debt Outstanding
+    debt_parsed_data <- debt_parsed_data %>%
+      select(date = record_date, security = security_type_desc, 
+             value = total_mil_amt, 
+             year = record_calendar_year) %>% 
+      filter(security == "Total Marketable" | 
+               security == "Total Nonmarketable" |
+               security == "Total Public Debt Outstanding")
+    # Filtering data based on user requested range of years
+    debt_parsed_data <- debt_parsed_data %>% 
+      filter(year >= year_from & year <= year_to) %>% 
+      select(date, security, value, year)
+    # Converting data into numeric
+    debt_parsed_data$date <- ymd(debt_parsed_data$date)
+    debt_parsed_data$value <- as.numeric(debt_parsed_data$value)
+    debt_parsed_data$year <- as.numeric(debt_parsed_data$year)
+    debt_parsed_data <- tibble(debt_parsed_data)
+    
+    # Filtering data based on the type of security chosen by the user
+    # If the user specified security_class is not equal to "all", the function returns data with the specified security_type
+    if(security_type != "all") {
+      debt_parsed_data <- debt_parsed_data %>% 
+        filter(security == security_type)
+    }
+    # If user specified security_type is "all", no filtering of data is done
+    else {
+      
+    }
+    
+    debt_parsed_data 
+  }
+  
+  # ## Gather data for the App- Here the Treasury securities interest rates and
+  # national debt (in millions) data is stored
+  # Interest data, loads US Treasury Securities average interest rates data
   interest_data <- avg_interest()
+  #Wide format
+  wider_interest_data <- interest_data %>% pivot_wider(names_from = "security", values_from = "value")
+  # Debt data, loads US Treasury Securities average interest rates data
+  debt_data <- national_debt()
+  #Wide format
+  wider_debt_data <- debt_data %>% pivot_wider(names_from = "security", values_from = "value")
+  
+  # Combine interest rate data and debt data
+  combined_data <- inner_join(wider_interest_data, wider_debt_data, by = "date") %>%
+    select(date = date, year = year.x, `Treasury Notes` = `Treasury Notes`,
+           `Treasury Bonds` =  `Treasury Bonds`, `Treasury Bills` = `Treasury Bills`,
+           `Federal Financing Bank`  = `Federal Financing Bank`,
+           `Treasury Inflation-Protected Securities (TIPS)` = `Treasury Inflation-Protected Securities (TIPS)`,
+           `Treasury Floating Rate Notes (FRN)` = `Treasury Floating Rate Notes (FRN)`,
+           `Total Public Debt Outstanding` = `Total Public Debt Outstanding`)
   
   # Save the Average Interest rate data based on user input, by default loads all data
   # # For numerical summaries, create a reactive variable so that the data is based on user input
@@ -69,6 +141,21 @@ function(input, output, session) {
     }
   })
   
+  # Save the Average Interest rate data based on user input, by default loads all data
+  # # For graphical summaries, create a reactive variable so that the data is based on user input
+  graphical_interest_data <- reactive({
+    if(input$type_of_security_graphical != "All") {
+      interest_data %>%  filter(security == input$type_of_security_graphical)
+    }
+    else{
+      interest_data
+    }
+  })
+  
+  
+  
+  
+  # Output for the About tab for the app
   output$app_purpose <- renderUI(
         HTML( "<b>", "Purpose of the App:", "</b>" , 
         "The purpose of this App is to", "<em>",
@@ -106,39 +193,65 @@ function(input, output, session) {
              the Wallstreet Bull image is used here", "</em>")
     )
     
-    # Numerical summary output based on the user input
+    
+    # Output for Numerical summary based on the user input
     output$numerical_summary <- DT::renderDataTable({
       DT::datatable(numerical_interest_data() %>% group_by(year) %>% 
                       summarise(value = 
-                                  if_else(input$summary_type == "Mean", mean(avg_interest), 
-                                          if_else(input$summary_type == "Median", median(avg_interest),
-                                                  if_else(input$summary_type == "Maximum", max(avg_interest), min(avg_interest))))))
+                                  if_else(input$summary_type == "Mean", mean(value), 
+                                          if_else(input$summary_type == "Median", median(value),
+                                                  if_else(input$summary_type == "Maximum", max(value), min(value))))))
     })
     
-    # Save the Average Interest rate data based on user input, by default loads all data
-    # # For graphical summaries, create a reactive variable so that the data is based on user input
-    graphical_interest_data <- reactive({
-      if(input$type_of_security_graphical != "All") {
-        interest_data %>%  filter(security == input$type_of_security_graphical)
-      }
-      else{
-        interest_data
-      }
-    })
-    # Graphical Summary- trend plot
-    output$trend_plot <- renderPlot({
-      g1 <- graphical_interest_data() %>% 
+    # Reactive function for Output of Graphical Summary based on the user input
+    graphical_plot <- reactive({
+      if(input$type_of_plot == "Securities Trend Plot") {
+        g1 <- graphical_interest_data() %>% 
         filter(security == "Treasury Bills" | 
                  security == "Treasury Bonds" | 
                  security == "Treasury Notes" |
                  security == "Treasury Inflation-Protected Securities (TIPS)" |
                  security == "Treasury Floating Rate Notes (FRN)" |
                  security == "Federal Financing Bank") %>% 
-        ggplot(aes(x = date, y = avg_interest)) + geom_line(aes(color = security)) + 
-        labs(x = "year", title = "Trends in US Treasury Securities", y = "interest_rate") +
-        theme_bw()
-      g1
+            ggplot(aes(x = date, y = value)) + geom_line(aes(color = security)) + 
+            labs(x = "year", title = "Trends in US Treasury Securities", y = "Interest rate (%)") +
+            theme_bw()
+        g1
+      }
+      else if(input$type_of_plot == "Securities Histogram"){
+        g2 <- graphical_interest_data() %>% 
+          filter(security == "Treasury Bills" | 
+                   security == "Treasury Bonds" | 
+                   security == "Treasury Notes" |
+                   security == "Treasury Inflation-Protected Securities (TIPS)" |
+                   security == "Treasury Floating Rate Notes (FRN)" |
+                   security == "Federal Financing Bank") %>% 
+          ggplot(aes(x = value)) + geom_histogram(aes(y = ..density.., fill = security), alpha = 0.5) + 
+          labs(x = "Interest rate (%)", title = "Histogram of US Treasury Securities", y = "Density") +
+          theme_bw()
+        if(input$density == TRUE) {
+          g2 <- g2 + geom_density(bw = input$bw_adjust, alpha = 0.5, position = "stack")
+        }
+        else{
+          g2
+        }
+        g2
+      }
+      else if(input$type_of_plot == "Total Debt Plot"){
+        g3 <- debt_data() %>% 
+          ggplot()
+      }
+      
     })
+
+    # Output for Graphical Summary based on the user input
+    output$graphical_summary <- renderPlot({
+      output_plot <- graphical_plot()
+      output_plot
+    })
+    
+    
+
 
 }
 
