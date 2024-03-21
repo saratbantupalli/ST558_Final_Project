@@ -13,10 +13,36 @@ fluidPage(
                tabPanel("About", 
                         htmlOutput("app_purpose"),
                         htmlOutput("picture"),
-                        htmlOutput("note"))
+                        htmlOutput("note")),
+               navbarMenu("Data Exploration",
+                          tabPanel("Numerical Summary",
+                                   radioButtons("summary_type","Summary type",
+                                                choices = c("Mean", "Median",
+                                                            "Maximum", "Minimum")),
+                                   selectInput("type_of_security_numerical", "Security", selected = "All",
+                                               choices = c("All",
+                                                 "Treasury Bills",
+                                                 "Treasury Notes",
+                                                 "Treasury Bonds",
+                                                 "Treasury Inflation-Protected Securities (TIPS)",
+                                                 "Treasury Floating Rate Notes (FRN)",
+                                                 "Federal Financing Bank",
+                                                 "Total Marketable")),
+                                   DT::dataTableOutput("numerical_summary")),
+                          tabPanel("Graphical Summary",
+                                   selectInput("type_of_plot", "Plot Type",
+                                               choices = c("Trend Plot")),
+                                   selectInput("type_of_security_graphical", "Security", selected = "All",
+                                               choices = c("All",
+                                                           "Treasury Bills",
+                                                           "Treasury Notes",
+                                                           "Treasury Bonds",
+                                                           "Treasury Inflation-Protected Securities (TIPS)",
+                                                           "Treasury Floating Rate Notes (FRN)",
+                                                           "Federal Financing Bank")),
+                                   plotOutput("trend_plot")))
     )
 )
- 
 
 
 
