@@ -16,43 +16,176 @@ fluidPage(
                         htmlOutput("note")),
                navbarMenu("Data Exploration",
                           tabPanel("Numerical Summary",
-                                   radioButtons("summary_type",strong("Summary type"),
-                                                choices = c("Mean", "Median",
-                                                            "Maximum", "Minimum")),
-                                   selectInput("type_of_security_numerical", strong("Security"), selected = "All",
-                                               choices = c("All",
-                                                 "Treasury Bills",
-                                                 "Treasury Notes",
-                                                 "Treasury Bonds",
-                                                 "Treasury Inflation-Protected Securities (TIPS)",
-                                                 "Treasury Floating Rate Notes (FRN)",
-                                                 "Federal Financing Bank",
-                                                 "Total Marketable")),
+                                   radioButtons("summary_type", 
+                                                strong("Summary type"),
+                                                choices = 
+                                                  c("Mean", "Median",
+                                                    "Maximum", "Minimum")),
+                                   selectInput(
+                                     "type_of_security_numerical", 
+                                     strong("Security"), 
+                                     selected = "All",
+                                     choices = 
+                                       c("All", "Treasury Bills",
+                                         "Treasury Notes",
+                                         "Treasury Bonds",
+                                         "Treasury Inflation-Protected Securities (TIPS)",
+                                         "Treasury Floating Rate Notes (FRN)",
+                                         "Federal Financing Bank",
+                                         "Total Marketable")),
                                    DT::dataTableOutput("numerical_summary")),
                           tabPanel("Graphical Summary",
-                                   selectInput("type_of_plot", strong("Plot Type"),
-                                               choices = c("Securities Trend Plot", "Securities Histogram",
-                                                           "Total Debt Plot")),
-                                   selectInput("type_of_security_graphical", strong("Security"), selected = "All",
-                                               choices = c("All",
-                                                           "Treasury Bills",
-                                                           "Treasury Notes",
-                                                           "Treasury Bonds",
-                                                           "Treasury Inflation-Protected Securities (TIPS)",
-                                                           "Treasury Floating Rate Notes (FRN)",
-                                                           "Federal Financing Bank")),
-                                   conditionalPanel(condition = "input.type_of_plot == 'Securities Histogram'",
-                                                    checkboxInput(inputId = "density",
-                                                                  label = strong("Show density estimate"),
-                                                                  value = FALSE)),
-                                   plotOutput("graphical_summary"),
-                                   conditionalPanel(condition = "input.density == true",
-                                                    sliderInput(inputId = "bw_adjust",
-                                                                label = "Bandwidth adjustment:",
-                                                                min = 0.01, max = 0.15, value =0.1, step = 0.05))))
+                                   selectInput("type_of_plot", 
+                                               strong("Plot Type"),
+                                               choices = 
+                                                 c("Securities Trend Plot", 
+                                                   "Securities Histogram",
+                                                   "Total Debt and Treasury Security Interest Rates",
+                                                   "Correlation Plot")),
+                                   conditionalPanel(
+                                     condition = "input.type_of_plot == 'Securities Trend Plot'|
+                                     input.type_of_plot == 'Securities Histogram'|
+                                     input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
+                                     selectInput(
+                                       "type_of_security_graphical", 
+                                       strong("Security"), 
+                                       selected = "All",
+                                       choices = 
+                                         c("All",
+                                           "Treasury Bills",
+                                           "Treasury Notes",
+                                           "Treasury Bonds",
+                                           "Treasury Inflation-Protected Securities (TIPS)",
+                                           "Treasury Floating Rate Notes (FRN)",
+                                           "Federal Financing Bank")),
+                                     conditionalPanel(
+                                       condition = 
+                                         "input.type_of_plot == 'Securities Histogram'",
+                                       checkboxInput(inputId = "density",
+                                                     label = 
+                                                       strong("Show density estimate"),
+                                                     value = FALSE)),
+                                     conditionalPanel(
+                                       condition = 
+                                         "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
+                                       numericInput(inputId = "start_year",
+                                                    label = 
+                                                      strong
+                                                    ("Start Year of Interest (2001 or later)"),
+                                                    value = 2001)),
+                                     conditionalPanel(
+                                       condition = 
+                                         "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
+                                       numericInput(inputId = "end_year",
+                                                    label = "End Year of Interest",
+                                                    value = 
+                                                      as.numeric(format(Sys.Date(),"%Y"))))),
+                                   conditionalPanel(
+                                     condition = "input.type_of_plot == 'Correlation Plot'",
+                                     checkboxGroupInput(inputId = "corr_plot_input",
+                                                 label = "Choose Variables for Correlation Plot",
+                                                 choices = c("Treasury Bills",
+                                                             "Treasury Notes",
+                                                             "Treasury Bonds",
+                                                             "Treasury Inflation-Protected Securities (TIPS)",
+                                                             "Treasury Floating Rate Notes (FRN)",
+                                                             "Federal Financing Bank",
+                                                             "Total Public Debt Outstanding"),
+                                                 selected = "Treasury Bills")),
+                                   plotOutput("graphical_summary", height = "800px"),
+                                   conditionalPanel(
+                                     condition = "input.density == true",
+                                     sliderInput(inputId = "bw_adjust",
+                                                 label = "Bandwidth adjustment:",
+                                                 min = 0.01, max = 0.15, 
+                                                 value =0.1, step = 0.05))))
     )
 )
 
+
+
+# 
+# # UI for Treasury Data
+# fluidPage(
+#   
+#   # Application title
+#   titlePanel(h1(strong("App to Connect to an API, Model Data, and Summarize"))),
+#   navbarPage("Treasury API App",
+#              tabPanel("About", 
+#                       htmlOutput("app_purpose"),
+#                       htmlOutput("picture"),
+#                       htmlOutput("note")),
+#              navbarMenu("Data Exploration",
+#                         tabPanel("Numerical Summary",
+#                                  radioButtons("summary_type", 
+#                                               strong("Summary type"),
+#                                               choices = 
+#                                                 c("Mean", "Median",
+#                                                   "Maximum", "Minimum")),
+#                                  selectInput(
+#                                    "type_of_security_numerical", 
+#                                    strong("Security"), 
+#                                    selected = "All",
+#                                    choices = 
+#                                      c("All", "Treasury Bills",
+#                                        "Treasury Notes",
+#                                        "Treasury Bonds",
+#                                        "Treasury Inflation-Protected Securities (TIPS)",
+#                                        "Treasury Floating Rate Notes (FRN)",
+#                                        "Federal Financing Bank",
+#                                        "Total Marketable")),
+#                                  DT::dataTableOutput("numerical_summary")),
+#                         tabPanel("Graphical Summary",
+#                                  selectInput("type_of_plot", 
+#                                              strong("Plot Type"),
+#                                              choices = 
+#                                                c("Securities Trend Plot", 
+#                                                  "Securities Histogram",
+#                                                  "Correlation Plot",
+#                                                  "Total Debt and Treasury Security Interest Rates")),
+#                                  selectInput(
+#                                    "type_of_security_graphical", 
+#                                    strong("Security"), 
+#                                    selected = "All",
+#                                    choices = 
+#                                      c("All",
+#                                        "Treasury Bills",
+#                                        "Treasury Notes",
+#                                        "Treasury Bonds",
+#                                        "Treasury Inflation-Protected Securities (TIPS)",
+#                                        "Treasury Floating Rate Notes (FRN)",
+#                                        "Federal Financing Bank")),
+#                                  conditionalPanel(
+#                                    condition = 
+#                                      "input.type_of_plot == 'Securities Histogram'",
+#                                    checkboxInput(inputId = "density",
+#                                                  label = 
+#                                                    strong("Show density estimate"),
+#                                                  value = FALSE)),
+#                                  conditionalPanel(
+#                                    condition = 
+#                                      "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
+#                                    numericInput(inputId = "start_year",
+#                                                 label = 
+#                                                   strong
+#                                                 ("Start Year of Interest (2001 or later)"),
+#                                                 value = 2001)),
+#                                  conditionalPanel(
+#                                    condition = 
+#                                      "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
+#                                    numericInput(inputId = "end_year",
+#                                                 label = "End Year of Interest",
+#                                                 value = 
+#                                                   as.numeric(format(Sys.Date(),"%Y")))),
+#                                  plotOutput("graphical_summary", height = "800px"),
+#                                  conditionalPanel(
+#                                    condition = "input.density == true",
+#                                    sliderInput(inputId = "bw_adjust",
+#                                                label = "Bandwidth adjustment:",
+#                                                min = 0.01, max = 0.15, 
+#                                                value =0.1, step = 0.05))))
+#   )
+# )
 
 
 # navbarMenu("More",
