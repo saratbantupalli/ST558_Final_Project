@@ -98,7 +98,11 @@ fluidPage(
                                      sliderInput(inputId = "bw_adjust",
                                                  label = "Bandwidth adjustment:",
                                                  min = 0.01, max = 0.15, 
-                                                 value =0.1, step = 0.05))))
+                                                 value =0.1, step = 0.05)))),
+               navbarMenu("Modeling",
+                          tabPanel("Modeling Info"),
+                          tabPanel("Model Fitting"),
+                          tabPanel("Prediction"))
     )
 )
 
