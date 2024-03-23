@@ -150,7 +150,28 @@ fluidPage(
                                      htmlOutput("rf_train_output")),
                                    verbatimTextOutput("rf_model_result"),
                                    plotOutput("rf_plot")),
-                          tabPanel("Prediction"))
+                          tabPanel("Prediction",
+                                   htmlOutput("prediction_text"),
+                                   numericInput(inputId = "t_bill",
+                                                label = "Treasury Bills Rate",
+                                                value = 2),
+                                   numericInput(inputId = "t_note",
+                                                label = "Treasury Notes Rate",
+                                                value = 2),
+                                   numericInput(inputId = "t_bnd",
+                                                label = "Treasury Bnds Rate",
+                                                value = 2),
+                                   numericInput(inputId = "tips",
+                                                label = "Treasury Inflation-Protected Securities (TIPS)",
+                                                value = 2),
+                                   numericInput(inputId = "frn",
+                                                label = "Treasury Floating Rate Notes (FRN)",
+                                                value = 2),
+                                   numericInput(inputId = "ffb",
+                                                label = "Federal Financing Bank",
+                                                value = 2),
+                                   htmlOutput("pred_mlr_result"),
+                                   verbatimTextOutput("user_pred_result")))
     )
 )
 

@@ -319,14 +319,15 @@ function(input, output, session) {
   output$app_purpose <- renderUI(
         HTML( "<b>", "Purpose of the App:", "</b>" , 
         "The purpose of this App is to", "<em>",
-        "connect to an API, get the data, and model the data.", "</em>",
+        "connect to an API, get the data, and models the data.", "</em>",
         "This app connects to the", "<em>","US Treasury API,", "</em>",
         "gets publicly available data on the nation's fiscal health, and 
         applies modeling techniques to estimate the trends in the nation's 
         finances and some key interest rates. This tool could 
-        help anyone look at the Treasury data, estimate, and see trends 
+        help anyone look at the Treasury data, see trends 
         in average interest rates on 
-        Marketable US Treasury Securities.", "<br>", "<br>",
+        Marketable US Treasury Securities and model the National Debt based on 
+        the interest rates of securities.", "<br>", "<br>",
         "<b>", "Data and Source:", "</b>" , 
         "The US Treasury maintains and publishes key fiscal data about the 
         country's finances including 
@@ -521,11 +522,65 @@ function(input, output, session) {
   })
   
   # Output for Modeling- Model Fitting
-  output$mlr_test_output <- renderUI(
-    HTML("</br>","MLR Test Data Results", "</br>")
+  output$prediction_text <- renderUI(
+    HTML("</br>","Here you can make prediction of National Debt based on
+         US Treasury Securities. You can enter values of interest 
+         rates on the following securities: Treasury Bills,
+         Treasury Notes, Treasury Bonds, 
+         Treasury Inflation-Protected Securities (TIPS),
+         Treasury Floating Rate Notes (FRN),
+         Federal Financing Bank", "</br>")
   )
   
+  # Prediction tab
+  val1_reactive <- reactive({
+    val1 <- as.numeric(input$t_bill)
+    val1
+  })
+  val2_reactive <- reactive({
+    val2 <- as.numeric(input$t_note)
+    val2
+  })
+  val3_reactive <- reactive({
+    val3 <- as.numeric(input$t_bnd)
+    val3
+  })
+  val4_reactive <- reactive({
+    val4 <- as.numeric(input$tips)
+    val4
+  })
+  val5_reactive <- reactive({
+    val5 <- as.numeric(input$frn)
+    val5
+  })
+  val6_reactive <- reactive({
+    val6 <- as.numeric(input$ffb)
+    val6
+  })
+  
+  output$pred_mlr_result <- renderUI(
+    HTML("</br>", "Prediction result using MLR model and user defined data")
+  )
+  
+  # User prediction Model output
+  output$user_pred_result <- renderPrint({
+    model <- mlr_model()
+    new <-data.frame(val1_reactive(),
+                     val2_reactive(),
+                     val3_reactive(),
+                     val4_reactive(),
+                     val5_reactive(),
+                     val6_reactive())
+    
+    # new <- data.frame('Treasury Bills ' = c(val1_reactive()), 
+    #          `Treasury Notes` = c(val2_reactive()),
+    #          `Treasury Bonds` = c(val3_reactive()), 
+    #          `Treasury Inflation-Protected Securities (TIPS)` = c(val4_reactive()),
+    #           `Treasury Floating Rate Notes (FRN)` = c(val5_reactive()), 
+    #          `Federal Financing Bank` = c(val6_reactive()))
+    result <- predict(model, newdata = new)
+    result
+  })
+  
 }
-
-
 
