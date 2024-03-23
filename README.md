@@ -23,6 +23,6 @@ install.packages(c("tidyverse", "shiny","httr", "jsonlite", "corrplot", "caret")
 
 ## Shiny Github code to run the app from R studio
 ```{r}
-shiny::runGitHub()
+shiny::runGitHub("saratbantupalli/ST558_Final_Project")
 ```
 
