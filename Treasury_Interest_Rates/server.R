@@ -563,8 +563,31 @@ function(input, output, session) {
   )
   
   # User prediction Model output
-  output$user_pred_result <- renderPrint({
+  output$user_pred_mlrresult <- renderPrint({
     model <- mlr_model()
+    new <-data.frame(val1_reactive(),
+                     val2_reactive(),
+                     val3_reactive(),
+                     val4_reactive(),
+                     val5_reactive(),
+                     val6_reactive())
+    
+    # new <- data.frame('Treasury Bills ' = c(val1_reactive()), 
+    #          `Treasury Notes` = c(val2_reactive()),
+    #          `Treasury Bonds` = c(val3_reactive()), 
+    #          `Treasury Inflation-Protected Securities (TIPS)` = c(val4_reactive()),
+    #           `Treasury Floating Rate Notes (FRN)` = c(val5_reactive()), 
+    #          `Federal Financing Bank` = c(val6_reactive()))
+    result <- predict(model, newdata = new)
+    result
+  })
+  
+  output$pred_rf_result <- renderUI(
+    HTML("</br>", "Prediction result using RF model and user defined data")
+  )
+  # User prediction Model output
+  output$user_pred_rfresult <- renderPrint({
+    model <- rf_model()
     new <-data.frame(val1_reactive(),
                      val2_reactive(),
                      val3_reactive(),

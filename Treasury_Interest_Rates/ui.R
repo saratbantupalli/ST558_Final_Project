@@ -171,7 +171,9 @@ fluidPage(
                                                 label = "Federal Financing Bank",
                                                 value = 2),
                                    htmlOutput("pred_mlr_result"),
-                                   verbatimTextOutput("user_pred_result")))
+                                   verbatimTextOutput("user_pred_mlrresult"),
+                                   htmlOutput("pred_rf_result"),
+                                   verbatimTextOutput("user_pred_rfresult")))
     )
 )
 
