@@ -33,7 +33,7 @@ fluidPage(
                                          "Treasury Floating Rate Notes (FRN)",
                                          "Federal Financing Bank",
                                          "Total Marketable")),
-                                   DT::dataTableOutput("numerical_summary")),
+                                   mainPanel(DT::dataTableOutput("numerical_summary"))),
                           tabPanel("Graphical Summary",
                                    selectInput("type_of_plot", 
                                                strong("Plot Type"),
@@ -43,7 +43,8 @@ fluidPage(
                                                    "Total Debt and Treasury Security Interest Rates",
                                                    "Correlation Plot")),
                                    conditionalPanel(
-                                     condition = "input.type_of_plot == 'Securities Trend Plot'|
+                                     condition = 
+                                     "input.type_of_plot == 'Securities Trend Plot'|
                                      input.type_of_plot == 'Securities Histogram'|
                                      input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
                                      selectInput(
@@ -92,7 +93,7 @@ fluidPage(
                                                              "Federal Financing Bank",
                                                              "Total Public Debt Outstanding"),
                                                  selected = "Treasury Bills")),
-                                   plotOutput("graphical_summary", height = "800px"),
+                                   mainPanel(plotOutput("graphical_summary", height = "800px")),
                                    conditionalPanel(
                                      condition = "input.density == true",
                                      sliderInput(inputId = "bw_adjust",
@@ -100,196 +101,58 @@ fluidPage(
                                                  min = 0.01, max = 0.15, 
                                                  value =0.1, step = 0.05)))),
                navbarMenu("Modeling",
-                          tabPanel("Modeling Info"),
-                          tabPanel("Model Fitting"),
+                          tabPanel("Modeling Info",
+                                   htmlOutput("model1_mlr1"),
+                                   uiOutput("mlr_equation1"),
+                                   htmlOutput("model1_mlr2"),
+                                   htmlOutput("model2_rf1")),
+                          tabPanel("Model Fitting",
+                                   numericInput(inputId ="train_percent",
+                                                label = "Percent of data to be used for Training Model (0-100)",
+                                                value = 80),
+                                   checkboxGroupInput(inputId = "model_var_mlr",
+                                                      label = strong("Choose Predictor Variables in the MLR Model"),
+                                                      choices = c("Treasury Bills",
+                                                                  "Treasury Notes",
+                                                                  "Treasury Bonds",
+                                                                  "Treasury Inflation-Protected Securities (TIPS)",
+                                                                  "Treasury Floating Rate Notes (FRN)",
+                                                                  "Federal Financing Bank"),
+                                                      selected = c("Treasury Bills",
+                                                                   "Treasury Notes",
+                                                                   "Treasury Bonds")),
+                                   checkboxGroupInput(inputId = "model_var_rf",
+                                                      label = strong("Choose Predictor Variables in the RF Model"),
+                                                      choices = c("Treasury Bills",
+                                                                  "Treasury Notes",
+                                                                  "Treasury Bonds",
+                                                                  "Treasury Inflation-Protected Securities (TIPS)",
+                                                                  "Treasury Floating Rate Notes (FRN)",
+                                                                  "Federal Financing Bank"),
+                                                      selected = c("Treasury Bills",
+                                                                   "Treasury Notes",
+                                                                   "Treasury Bonds")),
+                                   htmlOutput("text_in"),
+                                   numericInput(inputId = "tuning_parameter",
+                                                label = "Choose Tuning Parameter Grid",
+                                                value = 2),
+                                   numericInput(inputId = "cv_settings",
+                                                label = "Choose CV Settings",
+                                                value = 3),
+                                   actionButton(inputId = "model_run_button",
+                                                label = "Run Model"),
+                                   conditionalPanel(
+                                     condition = "input.model_run_button",
+                                     htmlOutput("mlr_train_output")),
+                                   verbatimTextOutput("mlr_model_result"),
+                                   conditionalPanel(
+                                     condition = "input.model_run_button",
+                                     htmlOutput("rf_train_output")),
+                                   verbatimTextOutput("rf_model_result"),
+                                   plotOutput("rf_plot")),
                           tabPanel("Prediction"))
     )
 )
 
 
 
-# 
-# # UI for Treasury Data
-# fluidPage(
-#   
-#   # Application title
-#   titlePanel(h1(strong("App to Connect to an API, Model Data, and Summarize"))),
-#   navbarPage("Treasury API App",
-#              tabPanel("About", 
-#                       htmlOutput("app_purpose"),
-#                       htmlOutput("picture"),
-#                       htmlOutput("note")),
-#              navbarMenu("Data Exploration",
-#                         tabPanel("Numerical Summary",
-#                                  radioButtons("summary_type", 
-#                                               strong("Summary type"),
-#                                               choices = 
-#                                                 c("Mean", "Median",
-#                                                   "Maximum", "Minimum")),
-#                                  selectInput(
-#                                    "type_of_security_numerical", 
-#                                    strong("Security"), 
-#                                    selected = "All",
-#                                    choices = 
-#                                      c("All", "Treasury Bills",
-#                                        "Treasury Notes",
-#                                        "Treasury Bonds",
-#                                        "Treasury Inflation-Protected Securities (TIPS)",
-#                                        "Treasury Floating Rate Notes (FRN)",
-#                                        "Federal Financing Bank",
-#                                        "Total Marketable")),
-#                                  DT::dataTableOutput("numerical_summary")),
-#                         tabPanel("Graphical Summary",
-#                                  selectInput("type_of_plot", 
-#                                              strong("Plot Type"),
-#                                              choices = 
-#                                                c("Securities Trend Plot", 
-#                                                  "Securities Histogram",
-#                                                  "Correlation Plot",
-#                                                  "Total Debt and Treasury Security Interest Rates")),
-#                                  selectInput(
-#                                    "type_of_security_graphical", 
-#                                    strong("Security"), 
-#                                    selected = "All",
-#                                    choices = 
-#                                      c("All",
-#                                        "Treasury Bills",
-#                                        "Treasury Notes",
-#                                        "Treasury Bonds",
-#                                        "Treasury Inflation-Protected Securities (TIPS)",
-#                                        "Treasury Floating Rate Notes (FRN)",
-#                                        "Federal Financing Bank")),
-#                                  conditionalPanel(
-#                                    condition = 
-#                                      "input.type_of_plot == 'Securities Histogram'",
-#                                    checkboxInput(inputId = "density",
-#                                                  label = 
-#                                                    strong("Show density estimate"),
-#                                                  value = FALSE)),
-#                                  conditionalPanel(
-#                                    condition = 
-#                                      "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
-#                                    numericInput(inputId = "start_year",
-#                                                 label = 
-#                                                   strong
-#                                                 ("Start Year of Interest (2001 or later)"),
-#                                                 value = 2001)),
-#                                  conditionalPanel(
-#                                    condition = 
-#                                      "input.type_of_plot == 'Total Debt and Treasury Security Interest Rates'",
-#                                    numericInput(inputId = "end_year",
-#                                                 label = "End Year of Interest",
-#                                                 value = 
-#                                                   as.numeric(format(Sys.Date(),"%Y")))),
-#                                  plotOutput("graphical_summary", height = "800px"),
-#                                  conditionalPanel(
-#                                    condition = "input.density == true",
-#                                    sliderInput(inputId = "bw_adjust",
-#                                                label = "Bandwidth adjustment:",
-#                                                min = 0.01, max = 0.15, 
-#                                                value =0.1, step = 0.05))))
-#   )
-# )
-
-
-# navbarMenu("More",
-#            tabPanel("Table",
-#                     DT::dataTableOutput("table")
-#            ),
-#            tabPanel("About",
-#                     fluidRow(
-#                       column(6,
-#                              includeMarkdown("about.md")
-#                       ),
-#                       column(3,
-#                              img(class="img-polaroid",
-#                                  src=paste0("http://upload.wikimedia.org/",
-#                                             "wikipedia/commons/9/92/",
-#                                             "1919_Ford_Model_T_Highboy_Coupe.jpg")),
-#                              tags$small(
-#                                "Source: Photographed at the Bay State Antique ",
-#                                "Automobile Club's July 10, 2005 show at the ",
-#                                "Endicott Estate in Dedham, MA by ",
-#                                a(href="http://commons.wikimedia.org/wiki/User:Sfoskett",
-#                                  "User:Sfoskett")
-#                              )
-#                       )
-#                     )
-#            )
-
-
-
-
-
-
-# mainPanel(
-#     tabsetPanel(
-#         type = "tabs",
-#         tabPanel("Plot", plotOutput("plot")),
-#         tabPanel("Summary", tableOutput("summary")),
-#         tabPanel("Data", DT::dataTableOutput("data")),
-#         tabPanel(
-#             "Reference",
-#             tags$p(
-#                 "There data were obtained from",
-#                 tags$a("IMDB", href = "http://www.imdb.com/"), "and",
-#                 tags$a("Rotten Tomatoes", href = "https://www.rottentomatoes.com/"), "."
-#             ),
-#             tags$p(
-#                 "The data represent", nrow(movies),
-#                 "randomly sampled movies released between 1972 to 2014 in the United States."
-#             )
-#         )
-#     )
-# )
-
-
-
-# Sidebar with a slider input for number of bins
-# sidebarLayout(
-#     sidebarPanel(
-#         sliderInput("bins",
-#                     "Number of bins:",
-#                     min = 1,
-#                     max = 50,
-#                     value = 30)
-#     ),
-
-# 
-# mainPanel(
-#     tabsetPanel(
-#         type = "tabs",
-#         tabPanel("About",
-#                  br(),
-#                  h3("Purpose of the App"),
-#                  textOutput("about_purpose"),
-#                  textOutput("about_data")), # About tab
-#         tabPanel("Data Exploration", ),
-#         tabPanel("Modeling", tabsetPanel(
-#             type = "tabs",
-#             tabPanel("Modeling Info", ),
-#             tabPanel("Model Fitting", ),
-#             tabPanel("Prediction", )
-#         ))
-#     )
-# )
-# )
-
-
-### Works 2024-01-21
-# titlePanel(h1(strong("US Treasury Fiscal Data"))),
-# navbarPage(title = "",
-#            navbarMenu(h3("About"),
-#                       tabPanel(h4("Purpose of App"),
-#                                htmlOutput("app_purpose")),
-#                       tabPanel(h4("About Data"),
-#                                htmlOutput("data_source")),
-#                       tabPanel(h4("App Navigation"),
-#                                htmlOutput("purpose_of_tabs"))
-#                       
-#            )
-#            
-#            
-# )
-# 
-# )
