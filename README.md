@@ -15,7 +15,7 @@ library(caret)
 
 ## Code to install all packages
 ```{r}
-install.packages(c("tidyverse", "shiny","httr", "jsonlite", "corrplot", "caret"))
+install.packages(c("tidyverse", "shiny","httr", "jsonlite", "corrplot", "caret", "DT"))
 
 ```
 
