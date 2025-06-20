@@ -1,12 +1,21 @@
 
-library(shiny)
-library(tidyverse)
-library(httr)
-library(jsonlite)
-library(corrplot)
-library(caret)
+# # Purpose of app- develop a R Shiny app that connects to a data source (here an API),
+# generates interactive numerical and graphical summaries, builds prediction models
 
-#library(bslib)
+
+# # What the App does- This app reads data from US Treasury API, transforms the data into
+# usable form, generates interactive numerical and graphical summaries, then builds 
+# prediction models
+
+
+# Required packages for running the server side of the app
+library(shiny)
+library(tidyverse) # tidyverse universe coding style is adopted throughout when possible
+library(httr) # for establishing a connection to the API and get data
+library(jsonlite) # to parse the data from API into usable form
+library(corrplot) # to generate correlation plots
+library(caret) # for model development 
+
 
 # # # Server logic required to connect to US Treasury API, get data on 
 # average interest rates and national public debt

@@ -1,14 +1,23 @@
-#
-# This App takes in data from the Treasury API and looks at trends in fiscal data
 
+# # Purpose of app- develop a R Shiny app that connects to a data source (here an API),
+# generates interactive numerical and graphical summaries, builds prediction models
+
+
+# # What the App does- This app reads data from US Treasury API, transforms the data into
+# usable form, generates interactive numerical and graphical summaries, then builds 
+# prediction models
+
+
+# Required packages for running the UI side of the app
 library(shiny)
-#library(bslib)
 
-# UI for Treasury Data
+# Code for UI 
+
 fluidPage(
-
     # Application title
+    # h1 creates a level 1 header, strong makes the text bold
     titlePanel(h1(strong("App to Connect to an API, Model Data, and Summarize"))),
+    # Create a page that contains a top level navigation bar
     navbarPage("Treasury API App",
                tabPanel("About", 
                         htmlOutput("app_purpose"),
