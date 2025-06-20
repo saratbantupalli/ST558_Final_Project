@@ -565,18 +565,21 @@ function(input, output, session) {
   # User prediction Model output
   output$user_pred_mlrresult <- renderPrint({
     model <- mlr_model()
-    new <-data.frame(val1_reactive(),
-                     val2_reactive(),
-                     val3_reactive(),
-                     val4_reactive(),
-                     val5_reactive(),
-                     val6_reactive())
-    
-    # new <- data.frame('Treasury Bills ' = c(val1_reactive()), 
-    #          `Treasury Notes` = c(val2_reactive()),
-    #          `Treasury Bonds` = c(val3_reactive()), 
+    df <- data.frame()
+    new <- df %>% mutate(`Treasury Bills` = val1_reactive(),
+                         `Treasury Notes` = val2_reactive(),
+                         `Treasury Bonds` = val3_reactive(),
+                         `Treasury Inflation-Protected Securities (TIPS)` = 
+                           val4_reactive(),
+                         `Treasury Floating Rate Notes (FRN)` = 
+                           val5_reactive(),
+                         `Federal Financing Bank` = 
+                           val6_reactive())
+    # new <- data.frame(`Treasury_Bills` = c(val1_reactive()),
+    #          `Treasury_Notes` = c(val2_reactive()),
+    #          `Treasury Bonds` = c(val3_reactive()),
     #          `Treasury Inflation-Protected Securities (TIPS)` = c(val4_reactive()),
-    #           `Treasury Floating Rate Notes (FRN)` = c(val5_reactive()), 
+    #           `Treasury Floating Rate Notes (FRN)` = c(val5_reactive()),
     #          `Federal Financing Bank` = c(val6_reactive()))
     result <- predict(model, newdata = new)
     result
