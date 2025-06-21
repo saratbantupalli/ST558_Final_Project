@@ -16,10 +16,11 @@ library(shiny)
 fluidPage(
     # Application title
     # h1 creates a level 1 header, strong makes the text bold
-    titlePanel(h1(strong("App to Connect to an API, Model Data, and Summarize"))),
+    titlePanel(h1(strong("Interactive R Shiny Dashboard: US Treasury Interest Rate Analysis"))),
     # Create a page that contains a top level navigation bar
-    navbarPage("Treasury API App",
-               tabPanel("About", 
+    navbarPage("Treasury Securities App",
+               # Create a tab panel
+               tabPanel("About", # About tab describes Purpose of the app, Data and Sources 
                         htmlOutput("app_purpose"),
                         htmlOutput("picture"),
                         htmlOutput("note")),

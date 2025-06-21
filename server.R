@@ -24,6 +24,71 @@ library(caret) # for model development
 # on user input (use reactive functions to modify data), and create output
 
 function(input, output, session) {
+  # Output for the About tab for the app
+  
+  
+  output$app_purpose <- renderUI(
+    HTML( "<b>", "Purpose of the App:", "</b>" , 
+          "This R Shiny app connects to the", "<em>","US Treasury API,", "</em>",
+          "to retrieve publicly available data on the nation's fiscal health. It 
+          then models this data to estimate trends in the national debt 
+          finances and key interest rates. Users can leverage this tool to analyze 
+          Treasury data, understand trends in average interest rates on 
+          Marketable US Treasury Securities, and create models of the National 
+          Debt influenced by these interest rates.", 
+          
+          "<br>", "<br>",
+          "<b>", "Data and Source:", "</b>" , 
+          "The US Treasury maintains and publishes essential fiscal data 
+          concerning the nation's finances, encompassing national debt, deficit, 
+          interest rates, and overall health of the economy. This crucial data is 
+          publicly available through the Treasury API which can be found", 
+          "<a href=https://fiscaldata.treasury.gov>", "here.", "</a>",
+          
+          "<br>" ,"<br>", 
+          "<b>", "Quick Intro on US Treasury Securities :", "</b>",
+          "Broadly speaking there are two types of Treasury Securities:",
+          
+          "<br>","<b>","1. Marketable Securities","</b>",": These are securities
+          readily traded on the open market, making them accessible to individual
+          investors (like me!!). Examples include Treasury Bills, Treasury Notes, 
+          and Treasury Bonds to name a few. Our analysis specifically targets 
+          trends within these marketable securities, and therefore, this 
+          application exclusively filters their data, trasnforms and models.",
+          
+          "<br>","<b>","2. Non-Marketable Securities","</b>",": These are non-
+          transferable and cannot be traded on the open market, and such, are
+          not included in the app's analysis.",
+          
+          "<br>", "<br>", 
+          "<b>", "Navigation of App:", "</b>", 
+          "This interactive app empowers users to explore data independently. The" 
+          ,"<em>", "About tab", "</em>","explains the app's purporse, the", "<em>",
+          "Data Exploration tab", "</em>","allows for creating numerical and 
+          graphical summaries of interest, and the", "<em>","Modeling tab", "</em>", 
+          "offers covariates choice to predict the national debt using various models.",
+          
+          "<br>", "<br>", 
+          "In the Data Exploration tab, the users can visualize trends for 
+          seven distinct marketable securities:", "<em>", 
+          "including Treasury Bills, Treasury Notes, 
+          Treasury Bonds, Treasury Inflation-Protected Securities (TIPS), 
+          Treasury Floating Rate Notes (FRN), 
+          Federal Financing Bank, and Total Marketable.", "</em>",
+          "Additionally, this section allows users to examine the distribution 
+          of various US Treasury Securities, trends in National Public Debt, 
+          and the correlation between US Treasury Securities and the National Debt.", 
+          "</br>", "<br>", 
+          "In the Modeling tab, users can predict the Total Public Debt 
+          based on US Treasury Securities interest rates. The app offers a choice 
+          between a Multiple Linear Regression Model and a 
+          Random Forest Model for predictions.", "</br>", "</br>",
+          "This app is based on a project I did as part of ST-558, Data Science 
+          for Statistician at NC State University Statistics Department. 
+          Information on the project can be", 
+          "<a href=https://saratbantupalli.github.io/2023/10/11/ST558_Project2.html>", 
+          "here.", "</a>","</br>", "</br>"))
+  
   # Create 2 functions to connect to Treasury API. First API connects and gets 
   # interest rates on US Treasury Securities while seconds API connects and gets 
   # data on national public debt
@@ -324,52 +389,7 @@ function(input, output, session) {
      rf_grid
    })
   
-  # Output for the About tab for the app
-  output$app_purpose <- renderUI(
-        HTML( "<b>", "Purpose of the App:", "</b>" , 
-        "The purpose of this App is to", "<em>",
-        "connect to an API, get the data, and models the data.", "</em>",
-        "This app connects to the", "<em>","US Treasury API,", "</em>",
-        "gets publicly available data on the nation's fiscal health, and 
-        applies modeling techniques to estimate the trends in the nation's 
-        finances and some key interest rates. This tool could 
-        help anyone look at the Treasury data, see trends 
-        in average interest rates on 
-        Marketable US Treasury Securities and model the National Debt based on 
-        the interest rates of securities.", "<br>", "<br>",
-        "<b>", "Data and Source:", "</b>" , 
-        "The US Treasury maintains and publishes key fiscal data about the 
-        country's finances including 
-        national debt, deficit, interest rates, and overall health of the 
-        economy. This all important 
-        data is available to everyone using the Treasury API which can be 
-        found", "<a href=https://fiscaldata.treasury.gov>", "here.", "</a>",
-        "<br>", "<br>", "<b>", "Navigation of App:", "</b>", 
-        "This app is setup to provide the user chance to explore the data by 
-        themselves. The About tab provides the purporse of the app, the Data 
-        Exploration tab lets the user create numerical 
-        and graphical summaries, and the Modeling tab lets the user apply 
-        predict variable of interest using two models.","</br>" , "In the 
-        Data Exploration tab, the user can choose see", "<em>", "trends in 
-        average interest rates for 7 different marketable securities", 
-        "</em>", "including Treasury Bills, Treasury Notes, 
-        Treasury Bonds, Treasury Inflation-Protected Securities (TIPS), 
-        Treasury Floating Rate Notes (FRN), 
-        Federal Financing Bank, and Total Marketable. In addition, the user 
-        can
-        see", "<em>", "distribution of various US Treasury Securities, trends 
-        in National
-        Public Debt, and Correlation of US Treasury Securities with National 
-        Debt.", "</em>", 
-        "</br>", "In the Modeling tab, the user can predict Total Public Debt 
-        based on interest rates on US Treasury Securities. The app allows the
-        user to model using a", "<em>", "Multiple Linear Regression Model or 
-        Random Forest Model.","</em>", "</br>", "</br>",
-        "This app is based on a project I did as part of ST-558, Data Science 
-        for Statistician at NC State 
-        University Statistics Department. Information on the project can be", 
-        "<a href=https://saratbantupalli.github.io/2023/10/11/ST558_Project2.html>", 
-        "here.", "</a>","</br>", "</br>"))
+
   
   
   
